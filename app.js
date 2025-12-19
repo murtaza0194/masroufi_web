@@ -69,38 +69,38 @@ function loginWithSuperQi() {
     // Check if running inside SuperQi (H5 Container)
     if (typeof my !== 'undefined' && my.getAuthCode) {
         my.getAuthCode({
-            scopes: ['auth_base'], // Authenticate without user info prompt (Silent)
+            scopes: ['auth_base'], // Silent Auth to get Code
             success: (res) => {
+                const authCode = res.authCode;
+
+                // NOTE: In a real production app, you must send this 'authCode' 
+                // to your Backend Server to exchange it for an Access Token & User ID.
+                // Since we don't have a backend here, we will store the AuthCode 
+                // to indicate a "Logged In" state for the UI demo.
+
+                const session = {
+                    token: authCode,
+                    // We cannot get real ID without backend exchange
+                    id: "AuthCode: " + authCode.substring(0, 10) + "..."
+                };
+
+                localStorage.setItem('user_session', JSON.stringify(session));
+
                 my.alert({
-                    content: res.authCode,
+                    content: "تم الحصول على الـ Auth Code بنجاح!"
                 });
 
-                // Continue with simulation for the UI
-                const authCode = res.authCode;
-                const realUser = {
-                    name: "SuperQi User",
-                    id: "qi_user_" + authCode.substr(0, 5),
-                    token: authCode
-                };
-                localStorage.setItem('user_session', JSON.stringify(realUser));
-                // Reload after a short delay so user sees the alert
-                setTimeout(() => window.location.reload(), 1500);
+                setTimeout(() => window.location.reload(), 1000);
             },
             fail: (res) => {
-                console.log(res.authErrorScopes);
-                my.alert({ content: "Auth Failed: " + JSON.stringify(res) });
+                console.error(res);
+                my.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
             }
         });
     } else {
-        // --- FALLBACK / MOCK FOR BROWSER ---
-        console.log("SuperQi 'my' object not found. Using Mock Login.");
-        const mockUser = {
-            name: "مستخدم تجريبي",
-            id: "12345",
-            token: "mock_token_abc123"
-        };
-        localStorage.setItem('user_session', JSON.stringify(mockUser));
-        window.location.reload();
+        // --- BROWSER / TESTING ---
+        // Since you requested removing "Fake" data, we will NOT allow mock login here.
+        alert("عذراً، هذا التطبيق يعمل فقط داخل تطبيق SuperQi (المحفظة).");
     }
 }
 
