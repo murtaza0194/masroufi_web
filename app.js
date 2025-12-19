@@ -66,19 +66,39 @@ function checkSession() {
 }
 
 function loginWithSuperQi() {
-    // --- REAL IMPLEMENTATION ---
-    // window.location.href = "https://id.qi.iq/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_VERCEL_URL&response_type=code";
+    // Check if running inside SuperQi (H5 Container)
+    if (typeof my !== 'undefined' && my.getAuthCode) {
+        my.getAuthCode({
+            scopes: 'auth_user', // Request user info scope
+            success: (res) => {
+                const authCode = res.authCode;
+                // In a real app, send authCode to your backend to exchange for token.
+                // Here we simulate success with the code.
+                alert(`Authorization Success! Code: ${authCode}`);
 
-    // --- MOCK IMPLEMENTATION ---
-    const mockUser = {
-        name: "مستخدم تجريبي",
-        id: "12345",
-        token: "mock_token_abc123"
-    };
-    localStorage.setItem('user_session', JSON.stringify(mockUser));
-
-    // Refresh page to trigger checkSession
-    window.location.reload();
+                const realUser = {
+                    name: "SuperQi User",
+                    id: "qi_user_" + authCode.substr(0, 5),
+                    token: authCode
+                };
+                localStorage.setItem('user_session', JSON.stringify(realUser));
+                window.location.reload();
+            },
+            fail: (res) => {
+                alert(`Login Failed: ${JSON.stringify(res)}`);
+            }
+        });
+    } else {
+        // --- FALLBACK / MOCK FOR BROWSER ---
+        console.log("SuperQi 'my' object not found. Using Mock Login.");
+        const mockUser = {
+            name: "مستخدم تجريبي",
+            id: "12345",
+            token: "mock_token_abc123"
+        };
+        localStorage.setItem('user_session', JSON.stringify(mockUser));
+        window.location.reload();
+    }
 }
 
 function navigate(target) {
