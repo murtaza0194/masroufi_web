@@ -104,6 +104,13 @@ function loginWithSuperQi() {
     }
 }
 
+function logout() {
+    if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+        localStorage.removeItem('user_session');
+        navigate('login');
+    }
+}
+
 function navigate(target) {
     const viewId = `${target}-view`;
 
@@ -115,6 +122,7 @@ function navigate(target) {
 
     // Update Header
     const backBtn = document.getElementById('backBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     const title = document.getElementById('pageTitle');
 
     // Default Header State
@@ -125,6 +133,7 @@ function navigate(target) {
         historyStack = ['login-view']; // Reset stack
     } else if (target === 'home') {
         backBtn.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden'); // Show logout on home
         title.innerText = 'مصروفي';
         initHome();
         // Base of stack if logged in
@@ -133,11 +142,13 @@ function navigate(target) {
         }
     } else if (target === 'add') {
         backBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden'); // Hide logout on inner pages
         title.innerText = 'إضافة مصروف';
         // Reset form
         document.getElementById('addForm').reset();
     } else if (target === 'stats') {
         backBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden'); // Hide logout on inner pages
         title.innerText = 'الإحصائيات';
         initStats();
     }
@@ -169,14 +180,17 @@ function renderView(viewId) {
     document.getElementById(viewId).classList.remove('hidden');
 
     const backBtn = document.getElementById('backBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     const title = document.getElementById('pageTitle');
 
     if (viewId === 'home-view') {
         backBtn.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
         title.innerText = 'مصروفي';
         initHome();
     } else {
         backBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
         title.innerText = viewId === 'add-view' ? 'إضافة مصروف' : 'الإحصائيات';
         if (viewId === 'stats-view') initStats();
     }
