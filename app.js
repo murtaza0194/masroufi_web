@@ -104,16 +104,22 @@ function loginWithSuperQi() {
     }
 }
 
-function copyId() {
-    const user = JSON.parse(localStorage.getItem('user_session'));
-    if (user && user.id) {
-        // Try to copy to clipboard
-        if (typeof my !== 'undefined' && my.setClipboard) {
-            my.setClipboard({ text: user.id });
-            my.alert({ content: "تم نسخ الـ ID: " + user.id });
+function showAuthInfo() {
+    const session = JSON.parse(localStorage.getItem('user_session'));
+    if (session && session.token) {
+        // As per doc example: my.alert({ content: res.authCode })
+        // We show the real AuthCode we have stored
+        if (typeof my !== 'undefined' && my.alert) {
+            my.alert({
+                title: 'Live Auth Code',
+                content: session.token,
+                buttonText: 'Copy',
+                success: () => {
+                    if (my.setClipboard) my.setClipboard({ text: session.token });
+                }
+            });
         } else {
-            navigator.clipboard.writeText(user.id);
-            alert("تم نسخ الـ ID: " + user.id);
+            alert("Auth Code: " + session.token);
         }
     }
 }
@@ -129,14 +135,11 @@ function navigate(target) {
 
     // Update Header
     const backBtn = document.getElementById('backBtn');
-    const userIdBtn = document.getElementById('userIdBtn');
+    const authInfoBtn = document.getElementById('authInfoBtn');
     const title = document.getElementById('pageTitle');
 
-    // Set ID if User exists
-    const user = JSON.parse(localStorage.getItem('user_session'));
-    if (user && userIdBtn) {
-        userIdBtn.innerText = "ID: " + user.id;
-    }
+    // Toggle Auth Info Button
+    const session = localStorage.getItem('user_session');
 
     // Default Header State
     document.querySelector('.app-header').classList.remove('hidden');
@@ -146,7 +149,7 @@ function navigate(target) {
         historyStack = ['login-view']; // Reset stack
     } else if (target === 'home') {
         backBtn.classList.add('hidden');
-        if (userIdBtn) userIdBtn.classList.remove('hidden'); // Show ID on home
+        if (authInfoBtn && session) authInfoBtn.classList.remove('hidden'); // Show on home
         title.innerText = 'مصروفي';
         initHome();
         // Base of stack if logged in
@@ -155,13 +158,13 @@ function navigate(target) {
         }
     } else if (target === 'add') {
         backBtn.classList.remove('hidden');
-        if (userIdBtn) userIdBtn.classList.add('hidden'); // Hide ID on inner pages
+        if (authInfoBtn) authInfoBtn.classList.add('hidden'); // Hide on inner pages
         title.innerText = 'إضافة مصروف';
         // Reset form
         document.getElementById('addForm').reset();
     } else if (target === 'stats') {
         backBtn.classList.remove('hidden');
-        if (userIdBtn) userIdBtn.classList.add('hidden'); // Hide ID on inner pages
+        if (authInfoBtn) authInfoBtn.classList.add('hidden'); // Hide on inner pages
         title.innerText = 'الإحصائيات';
         initStats();
     }
@@ -176,13 +179,6 @@ function goBack() {
     if (historyStack.length > 1) {
         historyStack.pop(); // Remove current
         const prev = historyStack[historyStack.length - 1]; // Get prev
-        // Extract simple name from view id (home-view -> home)
-        const target = prev.replace('-view', '');
-
-        // Custom logic to avoid re-pushing to stack in navigate
-        // Simple hack: Just call navigate, let it push, then pop twice? 
-        // Or better: manual switch
-
         renderView(prev);
     }
 }
@@ -193,17 +189,18 @@ function renderView(viewId) {
     document.getElementById(viewId).classList.remove('hidden');
 
     const backBtn = document.getElementById('backBtn');
-    const userIdBtn = document.getElementById('userIdBtn');
+    const authInfoBtn = document.getElementById('authInfoBtn');
     const title = document.getElementById('pageTitle');
+    const session = localStorage.getItem('user_session');
 
     if (viewId === 'home-view') {
         backBtn.classList.add('hidden');
-        if (userIdBtn) userIdBtn.classList.remove('hidden');
+        if (authInfoBtn && session) authInfoBtn.classList.remove('hidden');
         title.innerText = 'مصروفي';
         initHome();
     } else {
         backBtn.classList.remove('hidden');
-        if (userIdBtn) userIdBtn.classList.add('hidden');
+        if (authInfoBtn) authInfoBtn.classList.add('hidden');
         title.innerText = viewId === 'add-view' ? 'إضافة مصروف' : 'الإحصائيات';
         if (viewId === 'stats-view') initStats();
     }
