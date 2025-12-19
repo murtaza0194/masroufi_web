@@ -1,30 +1,44 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>مصروفي</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div id="app" class="container">
         <!-- HEADER -->
         <div class="app-header">
+            <span id="pageTitle" class="app-title">مصروفي</span>
             <button id="backBtn" class="back-btn hidden" onclick="goBack()">رجوع</button>
-            <span id="pageTitle">مصروفي</span>
+        </div>
+
+        <!-- LOGIN VIEW -->
+        <div id="login-view" class="view hidden">
+            <div style="text-align: center; padding: 60px 20px;">
+                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 10px;">أهلاً بك 👋</h1>
+                <p class="subtitle" style="margin-bottom: 40px; font-size: 16px;">تابع مصاريفك بذكاء وسهولة</p>
+                <button class="primary" onclick="loginWithSuperQi()">
+                    تسجيل الدخول عبر SuperQi
+                </button>
+            </div>
         </div>
 
         <!-- HOME VIEW -->
-        <div id="home-view" class="view">
+        <div id="home-view" class="view hidden">
             <div class="card">
                 <div class="row">
                     <div>
-                        <div>مصاريف اليوم</div>
-                        <div class="muted" id="homeDate"></div>
+                        <div class="section-title">مصاريف اليوم</div>
+                        <div class="subtitle" id="homeDate"></div>
                     </div>
-                    <div style="font-size:20px; font-weight:700;">
-                        <span id="homeTotal">0</span> IQD
+                    <div>
+                        <span class="big-number" id="homeTotal">0</span> <span
+                            style="color:#f7b500; font-weight:bold;">IQD</span>
                     </div>
                 </div>
             </div>
@@ -38,11 +52,12 @@
             </div>
 
             <div class="card">
-                <div style="margin-bottom:8px;">تفاصيل اليوم</div>
+                <div class="section-title">تفاصيل اليوم</div>
                 <div id="homeList">
                     <!-- Javascript will populate this -->
                 </div>
-                <div id="homeEmpty" class="muted hidden">ماكو مصاريف مسجّلة لليوم.</div>
+                <div id="homeEmpty" class="subtitle hidden" style="text-align: center; padding: 20px;">ماكو مصاريف
+                    مسجّلة لليوم.</div>
             </div>
         </div>
 
@@ -69,7 +84,7 @@
                     <input type="text" id="note" placeholder="مثال: غداء">
 
                     <div class="btn-container">
-                        <button type="submit" class="primary">حفظ</button>
+                        <button type="submit" class="primary">حفظ العملية</button>
                     </div>
                 </form>
             </div>
@@ -79,9 +94,10 @@
         <div id="stats-view" class="view hidden">
             <div class="card">
                 <div class="row">
-                    <div>الفترة</div>
+                    <div class="section-title" style="margin:0;">الفترة الزمنية</div>
                     <div style="width: 150px;">
-                        <select id="statsRange" onchange="refreshStats()" style="margin-bottom: 0; padding: 5px;">
+                        <select id="statsRange" onchange="refreshStats()"
+                            style="margin-bottom: 0; padding: 10px; background: rgba(0,0,0,0.2);">
                             <option value="0">اليوم</option>
                             <option value="1">هذا الأسبوع</option>
                             <option value="2">هذا الشهر</option>
@@ -89,18 +105,19 @@
                     </div>
                 </div>
 
-                <div style="margin-top:10px; font-size:20px; font-weight:800;">
-                    <span id="statsTotal">0</span> IQD
+                <div style="margin-top:20px;">
+                    <span class="big-number" id="statsTotal">0</span> <span
+                        style="color:#f7b500; font-weight:bold;">IQD</span>
                 </div>
-                <div class="muted" id="statsSubtitle"></div>
+                <div class="subtitle" id="statsSubtitle"></div>
             </div>
 
             <div class="card">
-                <div style="margin-bottom:8px;">حسب التصنيف</div>
+                <div class="section-title">التفاصيل حسب التصنيف</div>
                 <div id="statsList">
                     <!-- JS populate -->
                 </div>
-                <div id="statsEmpty" class="muted hidden">ماكو بيانات ضمن هالفترة.</div>
+                <div id="statsEmpty" class="subtitle hidden" style="text-align: center;">ماكو بيانات ضمن هالفترة.</div>
             </div>
         </div>
 
@@ -108,4 +125,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
