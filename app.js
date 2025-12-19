@@ -69,23 +69,26 @@ function loginWithSuperQi() {
     // Check if running inside SuperQi (H5 Container)
     if (typeof my !== 'undefined' && my.getAuthCode) {
         my.getAuthCode({
-            scopes: 'auth_user', // Request user info scope
+            scopes: ['auth_base'], // Authenticate without user info prompt (Silent)
             success: (res) => {
-                const authCode = res.authCode;
-                // In a real app, send authCode to your backend to exchange for token.
-                // Here we simulate success with the code.
-                alert(`Authorization Success! Code: ${authCode}`);
+                my.alert({
+                    content: res.authCode,
+                });
 
+                // Continue with simulation for the UI
+                const authCode = res.authCode;
                 const realUser = {
                     name: "SuperQi User",
                     id: "qi_user_" + authCode.substr(0, 5),
                     token: authCode
                 };
                 localStorage.setItem('user_session', JSON.stringify(realUser));
-                window.location.reload();
+                // Reload after a short delay so user sees the alert
+                setTimeout(() => window.location.reload(), 1500);
             },
             fail: (res) => {
-                alert(`Login Failed: ${JSON.stringify(res)}`);
+                console.log(res.authErrorScopes);
+                my.alert({ content: "Auth Failed: " + JSON.stringify(res) });
             }
         });
     } else {
