@@ -104,10 +104,17 @@ function loginWithSuperQi() {
     }
 }
 
-function logout() {
-    if (confirm("هل أنت متأكد من تسجيل الخروج؟")) {
-        localStorage.removeItem('user_session');
-        navigate('login');
+function copyId() {
+    const user = JSON.parse(localStorage.getItem('user_session'));
+    if (user && user.id) {
+        // Try to copy to clipboard
+        if (typeof my !== 'undefined' && my.setClipboard) {
+            my.setClipboard({ text: user.id });
+            my.alert({ content: "تم نسخ الـ ID: " + user.id });
+        } else {
+            navigator.clipboard.writeText(user.id);
+            alert("تم نسخ الـ ID: " + user.id);
+        }
     }
 }
 
@@ -122,8 +129,14 @@ function navigate(target) {
 
     // Update Header
     const backBtn = document.getElementById('backBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const userIdBtn = document.getElementById('userIdBtn');
     const title = document.getElementById('pageTitle');
+
+    // Set ID if User exists
+    const user = JSON.parse(localStorage.getItem('user_session'));
+    if (user && userIdBtn) {
+        userIdBtn.innerText = "ID: " + user.id;
+    }
 
     // Default Header State
     document.querySelector('.app-header').classList.remove('hidden');
@@ -133,7 +146,7 @@ function navigate(target) {
         historyStack = ['login-view']; // Reset stack
     } else if (target === 'home') {
         backBtn.classList.add('hidden');
-        if (logoutBtn) logoutBtn.classList.remove('hidden'); // Show logout on home
+        if (userIdBtn) userIdBtn.classList.remove('hidden'); // Show ID on home
         title.innerText = 'مصروفي';
         initHome();
         // Base of stack if logged in
@@ -142,13 +155,13 @@ function navigate(target) {
         }
     } else if (target === 'add') {
         backBtn.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.add('hidden'); // Hide logout on inner pages
+        if (userIdBtn) userIdBtn.classList.add('hidden'); // Hide ID on inner pages
         title.innerText = 'إضافة مصروف';
         // Reset form
         document.getElementById('addForm').reset();
     } else if (target === 'stats') {
         backBtn.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.add('hidden'); // Hide logout on inner pages
+        if (userIdBtn) userIdBtn.classList.add('hidden'); // Hide ID on inner pages
         title.innerText = 'الإحصائيات';
         initStats();
     }
@@ -180,17 +193,17 @@ function renderView(viewId) {
     document.getElementById(viewId).classList.remove('hidden');
 
     const backBtn = document.getElementById('backBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const userIdBtn = document.getElementById('userIdBtn');
     const title = document.getElementById('pageTitle');
 
     if (viewId === 'home-view') {
         backBtn.classList.add('hidden');
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
+        if (userIdBtn) userIdBtn.classList.remove('hidden');
         title.innerText = 'مصروفي';
         initHome();
     } else {
         backBtn.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.add('hidden');
+        if (userIdBtn) userIdBtn.classList.add('hidden');
         title.innerText = viewId === 'add-view' ? 'إضافة مصروف' : 'الإحصائيات';
         if (viewId === 'stats-view') initStats();
     }
