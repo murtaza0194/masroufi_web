@@ -53,8 +53,33 @@ function addExpenseToStore({ amount, category, note }) {
 }
 
 // --- Logic ---
-const views = ['home-view', 'add-view', 'stats-view'];
-let historyStack = ['home-view'];
+const views = ['home-view', 'add-view', 'stats-view', 'login-view'];
+let historyStack = [];
+
+function checkSession() {
+    const user = localStorage.getItem('user_session');
+    if (user) {
+        navigate('home');
+    } else {
+        navigate('login');
+    }
+}
+
+function loginWithSuperQi() {
+    // --- REAL IMPLEMENTATION ---
+    // window.location.href = "https://id.qi.iq/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_VERCEL_URL&response_type=code";
+
+    // --- MOCK IMPLEMENTATION ---
+    const mockUser = {
+        name: "مستخدم تجريبي",
+        id: "12345",
+        token: "mock_token_abc123"
+    };
+    localStorage.setItem('user_session', JSON.stringify(mockUser));
+
+    // Refresh page to trigger checkSession
+    window.location.reload();
+}
 
 function navigate(target) {
     const viewId = `${target}-view`;
@@ -69,10 +94,20 @@ function navigate(target) {
     const backBtn = document.getElementById('backBtn');
     const title = document.getElementById('pageTitle');
 
-    if (target === 'home') {
+    // Default Header State
+    document.querySelector('.app-header').classList.remove('hidden');
+
+    if (target === 'login') {
+        document.querySelector('.app-header').classList.add('hidden'); // Hide header on login
+        historyStack = ['login-view']; // Reset stack
+    } else if (target === 'home') {
         backBtn.classList.add('hidden');
         title.innerText = 'مصروفي';
         initHome();
+        // Base of stack if logged in
+        if (historyStack.length === 0 || historyStack[0] === 'login-view') {
+            historyStack = ['home-view'];
+        }
     } else if (target === 'add') {
         backBtn.classList.remove('hidden');
         title.innerText = 'إضافة مصروف';
@@ -84,8 +119,8 @@ function navigate(target) {
         initStats();
     }
 
-    // Push to stack if not going back
-    if (historyStack[historyStack.length - 1] !== viewId) {
+    // Push to stack if not going back and not resetting
+    if (target !== 'login' && target !== 'home' && historyStack[historyStack.length - 1] !== viewId) {
         historyStack.push(viewId);
     }
 }
@@ -233,4 +268,4 @@ function refreshStats() {
 }
 
 // Initial Run
-initHome();
+checkSession();
