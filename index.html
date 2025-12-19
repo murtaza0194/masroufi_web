@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>مصروفي</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app" class="container">
+        <!-- HEADER -->
+        <div class="app-header">
+            <button id="backBtn" class="back-btn hidden" onclick="goBack()">رجوع</button>
+            <span id="pageTitle">مصروفي</span>
+        </div>
+
+        <!-- HOME VIEW -->
+        <div id="home-view" class="view">
+            <div class="card">
+                <div class="row">
+                    <div>
+                        <div>مصاريف اليوم</div>
+                        <div class="muted" id="homeDate"></div>
+                    </div>
+                    <div style="font-size:20px; font-weight:700;">
+                        <span id="homeTotal">0</span> IQD
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="primary" onclick="navigate('add')">+ إضافة مصروف</button>
+            </div>
+
+            <div class="btn-container">
+                <button class="secondary" onclick="navigate('stats')">الإحصائيات</button>
+            </div>
+
+            <div class="card">
+                <div style="margin-bottom:8px;">تفاصيل اليوم</div>
+                <div id="homeList">
+                    <!-- Javascript will populate this -->
+                </div>
+                <div id="homeEmpty" class="muted hidden">ماكو مصاريف مسجّلة لليوم.</div>
+            </div>
+        </div>
+
+        <!-- ADD VIEW -->
+        <div id="add-view" class="view hidden">
+            <div class="card">
+                <form id="addForm" onsubmit="submitExpense(event)">
+                    <label>المبلغ</label>
+                    <input type="number" id="amount" placeholder="مثال: 5000" required inputmode="numeric">
+
+                    <label>التصنيف</label>
+                    <select id="category">
+                        <option value="أكل">أكل</option>
+                        <option value="مواصلات">مواصلات</option>
+                        <option value="تسوق">تسوق</option>
+                        <option value="فواتير">فواتير</option>
+                        <option value="صحة">صحة</option>
+                        <option value="تعليم">تعليم</option>
+                        <option value="ترفيه">ترفيه</option>
+                        <option value="غير ذلك">غير ذلك</option>
+                    </select>
+
+                    <label>ملاحظة (اختياري)</label>
+                    <input type="text" id="note" placeholder="مثال: غداء">
+
+                    <div class="btn-container">
+                        <button type="submit" class="primary">حفظ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- STATS VIEW -->
+        <div id="stats-view" class="view hidden">
+            <div class="card">
+                <div class="row">
+                    <div>الفترة</div>
+                    <div style="width: 150px;">
+                        <select id="statsRange" onchange="refreshStats()" style="margin-bottom: 0; padding: 5px;">
+                            <option value="0">اليوم</option>
+                            <option value="1">هذا الأسبوع</option>
+                            <option value="2">هذا الشهر</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px; font-size:20px; font-weight:800;">
+                    <span id="statsTotal">0</span> IQD
+                </div>
+                <div class="muted" id="statsSubtitle"></div>
+            </div>
+
+            <div class="card">
+                <div style="margin-bottom:8px;">حسب التصنيف</div>
+                <div id="statsList">
+                    <!-- JS populate -->
+                </div>
+                <div id="statsEmpty" class="muted hidden">ماكو بيانات ضمن هالفترة.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
