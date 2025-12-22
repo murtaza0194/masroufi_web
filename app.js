@@ -69,21 +69,28 @@ function loginWithSuperQi() {
     // Check if running inside SuperQi (H5 Container)
     if (typeof my !== 'undefined' && my.getAuthCode) {
         my.getAuthCode({
-            scopes: ['auth_base','USER_ID'], // Silent Auth to get Code
+            scopes: ['auth_base', 'USER_ID'], // Silent Auth to get Code
             success: (res) => {
+                if (!res.authCode) {
+                    my.alert({ content: "Error: No authCode received" });
+                    return;
+                }
                 fetch('https://its.mouamle.space/api/auth-with-superQi', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            token: authCode
-                        })
-                    }).then(res => res.json()).then(data => {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: res.authCode
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
                         my.alert({
                             content: "Login successful",
                         });
-                        }).catch(err => {
+                    })
+                    .catch(err => {
                         let errorDetails = '';
                         if (err && typeof err === 'object') {
                             errorDetails = JSON.stringify(err, null, 2);
@@ -94,14 +101,14 @@ function loginWithSuperQi() {
                             content: "Error: " + errorDetails,
                         });
                     });
-
-                        },
-                
-                fail: (res) => {
+            },
+            fail: (res) => {
                 console.error(res);
                 my.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
             }
         });
+    } else {
+        console.warn("SuperQi environment not detected");
     }
 }
 
