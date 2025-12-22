@@ -56,14 +56,22 @@ function addExpenseToStore({ amount, category, note }) {
 const views = ['home-view', 'add-view', 'stats-view', 'login-view'];
 let historyStack = [];
 
-function checkSession() {
-    const user = localStorage.getItem('user_session');
-    if (user) {
-        navigate('home');
-    } else {
-        navigate('login');
-    }
-}
+my.getAuthCode({
+  scopes: ['auth_base','USER_ID'],
+  success: (res) => {
+    // Send res.authCode to merchant backend
+    my.request({
+      url: 'https://merchant.com/api/auth',
+      method: 'POST',
+      data: {
+        authCode: res.authCode
+      }
+    });
+  },
+  fail: (err) => {
+    console.log('Authorization failed:', err.authErrorScopes);
+  }
+});
 
 function loginWithSuperQi() {
     // Attempt to find the bridge object
