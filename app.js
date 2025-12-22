@@ -66,57 +66,42 @@ function checkSession() {
 }
 
 function loginWithSuperQi() {
-    // Attempt to find the bridge object
-    const bridge = (typeof my !== 'undefined' ? my : null) || window.my || window.qs;
-
-    // Check if running inside SuperQi (H5 Container)
-    if (bridge && bridge.getAuthCode) {
-        bridge.getAuthCode({
-            scopes: ['auth_base', 'USER_ID'], // Silent Auth to get Code
+    // Check if my is defined (SuperQi environment)
+    if (typeof my !== 'undefined') {
+        my.getAuthCode({
+            scopes: ['auth_base', 'USER_ID'],
             success: (res) => {
-                const authCode = res.authCode || res.code; // Handle potential variations
-                if (!authCode) {
-                    bridge.alert({ content: "Error: No authCode received" });
-                    return;
-                }
-
-                // Use my.request instead of fetch
-                bridge.request({
-                    url: 'https://its.mouamle.space/api/auth-with-superQi',
+                // Send res.authCode to merchant backend
+                my.request({
+                    url: 'https://its.mouamle.space/api/auth-with-superQi', // Correct App URL
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     data: {
-                        token: authCode
+                        token: res.authCode // Using the correct param name for backend
                     },
                     success: (response) => {
-                        // In many mini-app containers, response.data holds the actual JSON
+                        // Handle the response from your backend
+                        // Note: response.data usually contains the server response body
                         const data = response.data;
 
                         if (data) {
                             localStorage.setItem('user_session', JSON.stringify(data));
-                            bridge.alert({ content: "Login successful" });
+                            my.alert({ content: "Login successful" });
                             navigate('home');
                         } else {
-                            bridge.alert({ content: "Login failed: Invalid response" });
+                            my.alert({ content: "Login failed: No data received" });
                         }
                     },
                     fail: (err) => {
-                        bridge.alert({ content: "API Request failed: " + JSON.stringify(err) });
+                        my.alert({ content: "Backend Request Failed: " + JSON.stringify(err) });
                     }
                 });
             },
             fail: (err) => {
-                console.error(err);
-                bridge.alert({ content: "Auth failed: " + JSON.stringify(err) });
+                my.alert({ content: "Authorization failed: " + JSON.stringify(err) });
             }
         });
     } else {
-        // Fallback or Debug
-        const debugInfo = "window keys: " + Object.keys(window).filter(k => k.length < 3).join(',');
-        alert("SuperQi environment not detected. " + debugInfo);
-        console.warn("SuperQi environment not detected");
+        alert("SuperQi environment not detected");
     }
 }
 
