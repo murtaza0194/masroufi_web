@@ -56,26 +56,17 @@ function addExpenseToStore({ amount, category, note }) {
 const views = ['home-view', 'add-view', 'stats-view', 'login-view'];
 let historyStack = [];
 
-my.getAuthCode({
-  scopes: ['auth_base','USER_ID'],
-  success: (res) => {
-    // Send res.authCode to merchant backend
-    my.request({
-      url: 'https://merchant.com/api/auth',
-      method: 'POST',
-      data: {
-        authCode: res.authCode
-      }
-    });
-  },
-  fail: (err) => {
-    console.log('Authorization failed:', err.authErrorScopes);
-  }
-});
+function checkSession() {
+    const user = localStorage.getItem('user_session');
+    if (user) {
+        navigate('home');
+    } else {
+        navigate('login');
+    }
+}
 
 function loginWithSuperQi() {
     // Attempt to find the bridge object
-    // Common aliases: my (Alipay/standard), qs (QiServices?), window.my
     const bridge = (typeof my !== 'undefined' ? my : null) || window.my || window.qs;
 
     // Check if running inside SuperQi (H5 Container)
@@ -85,44 +76,46 @@ function loginWithSuperQi() {
             success: (res) => {
                 const authCode = res.authCode || res.code; // Handle potential variations
                 if (!authCode) {
-                    bridge.alert({ content: "Error: No authCode received in response: " + JSON.stringify(res) });
+                    bridge.alert({ content: "Error: No authCode received" });
                     return;
                 }
 
-                fetch('https://its.mouamle.space/api/auth-with-superQi', {
+                // Use my.request instead of fetch
+                bridge.request({
+                    url: 'https://its.mouamle.space/api/auth-with-superQi',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
+                    data: {
                         token: authCode
-                    })
-                })
-                    .then(res => res.json())
-                    .then(data => {
+                    },
+                    success: (response) => {
+                        // In many mini-app containers, response.data holds the actual JSON
+                        const data = response.data;
+
                         if (data) {
                             localStorage.setItem('user_session', JSON.stringify(data));
                             bridge.alert({ content: "Login successful" });
                             navigate('home');
                         } else {
-                            bridge.alert({ content: "Login failed: Invalid response from server" });
+                            bridge.alert({ content: "Login failed: Invalid response" });
                         }
-                    })
-                    .catch(err => {
-                        bridge.alert({
-                            content: "Error: " + String(err),
-                        });
-                    });
+                    },
+                    fail: (err) => {
+                        bridge.alert({ content: "API Request failed: " + JSON.stringify(err) });
+                    }
+                });
             },
-            fail: (res) => {
-                console.error(res);
-                bridge.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
+            fail: (err) => {
+                console.error(err);
+                bridge.alert({ content: "Auth failed: " + JSON.stringify(err) });
             }
         });
     } else {
         // Fallback or Debug
         const debugInfo = "window keys: " + Object.keys(window).filter(k => k.length < 3).join(',');
-        alert("SuperQi environment not detected. (bridge not found). " + debugInfo);
+        alert("SuperQi environment not detected. " + debugInfo);
         console.warn("SuperQi environment not detected");
     }
 }
