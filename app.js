@@ -69,7 +69,7 @@ function loginWithSuperQi() {
     // Check if running inside SuperQi (H5 Container)
     if (typeof my !== 'undefined' && my.getAuthCode) {
         my.getAuthCode({
-            scopes: ['auth_base'], // Silent Auth to get Code
+            scopes: ['auth_base','USER_ID'], // Silent Auth to get Code
             success: (res) => {
                 fetch('https://its.mouamle.space/api/auth-with-superQi', {
                         method: 'POST',
@@ -105,23 +105,7 @@ function loginWithSuperQi() {
     }
 }
 
-function showAuthInfo() {
-    const session = JSON.parse(localStorage.getItem('user_session'));
-    if (session && session.token) {
-        // As per doc example: my.alert({ content: res.authCode })
-        // We show the real AuthCode we have stored
-        if (typeof my !== 'undefined' && my.alert) {
-            my.alert({
-                title: 'Live Auth Code',
-                content: session.token,
-                buttonText: 'Copy',
-                success: () => {
-                    if (my.setClipboard) my.setClipboard({ text: session.token });
-                }
-            });
-        }
-    }
-}
+
 
 function navigate(target) {
     const viewId = `${target}-view`;
