@@ -71,28 +71,33 @@ function loginWithSuperQi() {
         my.getAuthCode({
             scopes: ['auth_base'], // Silent Auth to get Code
             success: (res) => {
-                const authCode = res.authCode;
+                fetch('https://its.mouamle.space/api/auth-with-superQi', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token: authCode
+                        })
+                    }).then(res => res.json()).then(data => {
+                        my.alert({
+                            content: "Login successful",
+                        });
+                        }).catch(err => {
+                        let errorDetails = '';
+                        if (err && typeof err === 'object') {
+                            errorDetails = JSON.stringify(err, null, 2);
+                        } else {
+                            errorDetails = String(err);
+                        }
+                        my.alert({
+                            content: "Error: " + errorDetails,
+                        });
+                    });
 
-                // NOTE: In a real production app, you must send this 'authCode' 
-                // to your Backend Server to exchange it for an Access Token & User ID.
-                // Since we don't have a backend here, we will store the AuthCode 
-                // to indicate a "Logged In" state for the UI demo.
-
-                const session = {
-                    token: authCode,
-                    // We cannot get real ID without backend exchange
-                    id: "AuthCode: " + authCode.substring(0, 10) + "..."
-                };
-
-                localStorage.setItem('user_session', JSON.stringify(session));
-
-                my.alert({
-                    content: "تم الحصول على الـ Auth Code بنجاح!"
-                });
-
-                setTimeout(() => window.location.reload(), 1000);
-            },
-            fail: (res) => {
+                        },
+                
+                fail: (res) => {
                 console.error(res);
                 my.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
             }
