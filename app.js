@@ -75,7 +75,7 @@ function loginWithSuperQi() {
                     my.alert({ content: "Error: No authCode received" });
                     return;
                 }
-                
+
                 fetch('https://its.mouamle.space/api/auth-with-superQi', {
                     method: 'POST',
                     headers: {
@@ -86,6 +86,17 @@ function loginWithSuperQi() {
                     })
                 })
                     .then(res => res.json())
+                    .then(data => {
+                        // Check if data implies success (adjust based on actual API response structure)
+                        // Assuming data contains user info or token
+                        if (data) {
+                            localStorage.setItem('user_session', JSON.stringify(data));
+                            my.alert({ content: "Login successful" });
+                            navigate('home');
+                        } else {
+                            my.alert({ content: "Login failed: Invalid response from server" });
+                        }
+                    })
                     .catch(err => {
                         let errorDetails = '';
                         if (err && typeof err === 'object') {
@@ -104,6 +115,7 @@ function loginWithSuperQi() {
             }
         });
     } else {
+        alert("SuperQi environment not detected. Please run inside the SuperQi app.");
         console.warn("SuperQi environment not detected");
     }
 }
