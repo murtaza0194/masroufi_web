@@ -75,6 +75,7 @@ function loginWithSuperQi() {
                     my.alert({ content: "Error: No authCode received" });
                     return;
                 }
+                
                 fetch('https://its.mouamle.space/api/auth-with-superQi', {
                     method: 'POST',
                     headers: {
@@ -85,11 +86,6 @@ function loginWithSuperQi() {
                     })
                 })
                     .then(res => res.json())
-                    .then(data => {
-                        my.alert({
-                            content: "Login successful",
-                        });
-                    })
                     .catch(err => {
                         let errorDetails = '';
                         if (err && typeof err === 'object') {
