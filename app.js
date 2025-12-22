@@ -102,10 +102,6 @@ function loginWithSuperQi() {
                 my.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
             }
         });
-    } else {
-        // --- BROWSER / TESTING ---
-        // Since you requested removing "Fake" data, we will NOT allow mock login here.
-        alert("عذراً، هذا التطبيق يعمل فقط داخل تطبيق SuperQi (المحفظة).");
     }
 }
 
@@ -123,8 +119,6 @@ function showAuthInfo() {
                     if (my.setClipboard) my.setClipboard({ text: session.token });
                 }
             });
-        } else {
-            alert("Auth Code: " + session.token);
         }
     }
 }
