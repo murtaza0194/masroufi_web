@@ -66,8 +66,11 @@ function checkSession() {
 }
 
 function loginWithSuperQi() {
+    // Ensure 'my' is available
+    var my = window.my || (typeof my !== 'undefined' ? my : null);
+
     // Check if my is defined (SuperQi environment)
-    if (typeof my !== 'undefined') {
+    if (my) {
         my.getAuthCode({
             scopes: ['auth_base', 'USER_ID'],
             success: (res) => {
