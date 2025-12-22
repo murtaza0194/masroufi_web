@@ -66,13 +66,18 @@ function checkSession() {
 }
 
 function loginWithSuperQi() {
+    // Attempt to find the bridge object
+    // Common aliases: my (Alipay/standard), qs (QiServices?), window.my
+    const bridge = (typeof my !== 'undefined' ? my : null) || window.my || window.qs;
+
     // Check if running inside SuperQi (H5 Container)
-    if (typeof my !== 'undefined' && my.getAuthCode) {
-        my.getAuthCode({
+    if (bridge && bridge.getAuthCode) {
+        bridge.getAuthCode({
             scopes: ['auth_base', 'USER_ID'], // Silent Auth to get Code
             success: (res) => {
-                if (!res.authCode) {
-                    my.alert({ content: "Error: No authCode received" });
+                const authCode = res.authCode || res.code; // Handle potential variations
+                if (!authCode) {
+                    bridge.alert({ content: "Error: No authCode received in response: " + JSON.stringify(res) });
                     return;
                 }
 
@@ -82,40 +87,34 @@ function loginWithSuperQi() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        token: res.authCode
+                        token: authCode
                     })
                 })
                     .then(res => res.json())
                     .then(data => {
-                        // Check if data implies success (adjust based on actual API response structure)
-                        // Assuming data contains user info or token
                         if (data) {
                             localStorage.setItem('user_session', JSON.stringify(data));
-                            my.alert({ content: "Login successful" });
+                            bridge.alert({ content: "Login successful" });
                             navigate('home');
                         } else {
-                            my.alert({ content: "Login failed: Invalid response from server" });
+                            bridge.alert({ content: "Login failed: Invalid response from server" });
                         }
                     })
                     .catch(err => {
-                        let errorDetails = '';
-                        if (err && typeof err === 'object') {
-                            errorDetails = JSON.stringify(err, null, 2);
-                        } else {
-                            errorDetails = String(err);
-                        }
-                        my.alert({
-                            content: "Error: " + errorDetails,
+                        bridge.alert({
+                            content: "Error: " + String(err),
                         });
                     });
             },
             fail: (res) => {
                 console.error(res);
-                my.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
+                bridge.alert({ content: "فشل الاتصال بـ SuperQi: " + JSON.stringify(res) });
             }
         });
     } else {
-        alert("SuperQi environment not detected. Please run inside the SuperQi app.");
+        // Fallback or Debug
+        const debugInfo = "window keys: " + Object.keys(window).filter(k => k.length < 3).join(',');
+        alert("SuperQi environment not detected. (bridge not found). " + debugInfo);
         console.warn("SuperQi environment not detected");
     }
 }
